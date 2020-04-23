@@ -10,12 +10,21 @@ Eurojackpot data scraping tool
 by Benjamin Hartman
 All rights reserved. 
 """
+
 def startDrivers(url):
+	"""
+	Starts the driver, goes to the url and
+	returns the driver element
+	"""
 	driver = webdriver.Chrome()
 	driver.get(url)
 	return driver
 
 def changeDate(driver, week, year):
+	"""
+	Changes the date of the Veikkaus search bar into the desired date
+	and clicks on refresh so that the right data is shown on the website
+	"""
 	week = str(week)
 	year = str(year)
 	weekinput = driver.find_element_by_id('input-week')
@@ -46,6 +55,12 @@ def changeDate(driver, week, year):
 	a.perform()
 
 def getNumbers(driver, row):
+	"""
+	Looks for the unordered list in the HTML that contains the numbers and
+	separates the list into a list of primary numbers (first five) and secondary
+	numbers (last two). Puts the primaries and the secondaries together, prints the total
+	row and returns it. 
+	"""
 	row = []
 	sleep(1)
 	ols = driver.find_elements_by_tag_name('ol')
@@ -64,15 +79,19 @@ def getNumbers(driver, row):
 def main():
 	endyear = input('Enter end year of scraping: ')
 	endweek = input('Enter end week of scraping: ')
-
 	row = []
+
+
+	#URL of Veikkaus website with statistics over numbers
 	url = 'https://www.veikkaus.fi/fi/tulokset#!/tarkennettu-haku/eurojackpot'
+
 	today = date.today().isocalendar()
 	year = today[0]
 	week = today[1]
 	print('Today is week',week, 'of', year)
 	week -= 1
 	print('Starting scraping from week', week)
+	
 	driver = startDrivers(url)
 	with open('results.csv', 'w', newline='') as file:
 		writer = csv.writer(file)
