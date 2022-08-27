@@ -3,6 +3,7 @@ from time import sleep
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.by import By
 import csv
 
 """
@@ -27,13 +28,17 @@ def changeDate(driver, week, year):
 	"""
 	week = str(week)
 	year = str(year)
-	weekinput = driver.find_element_by_id('input-week')
-	yearinput = driver.find_element_by_id('input-year')
-	refreshbutton = driver.find_element_by_id('nav__week-search')
+	weekinput = driver.find_element(By.ID, 'input-week')
+	yearinput = driver.find_element(By.ID, 'input-year')
+	refreshbutton = driver.find_element(By.ID, 'nav__week-search')
 
+
+	
 	a = ActionChains(driver)
 	a.move_to_element(weekinput)
 	a.click()
+	a.send_keys(Keys.DELETE)
+	a.send_keys(Keys.DELETE)
 	a.send_keys(Keys.BACK_SPACE)
 	a.send_keys(Keys.BACK_SPACE)
 	a.send_keys(week)
@@ -42,17 +47,24 @@ def changeDate(driver, week, year):
 	a.reset_actions()
 	a.move_to_element(yearinput)
 	a.click()
+	a.send_keys(Keys.DELETE)
+	a.send_keys(Keys.DELETE)
+	a.send_keys(Keys.DELETE)
+	a.send_keys(Keys.DELETE)
 	a.send_keys(Keys.BACK_SPACE)
 	a.send_keys(Keys.BACK_SPACE)
 	a.send_keys(Keys.BACK_SPACE)
 	a.send_keys(Keys.BACK_SPACE)
 	a.send_keys(year)
 	a.perform()
-
+	
+	sleep(0.2)
 	a.reset_actions()
 	a.move_to_element(refreshbutton)
 	a.click()
 	a.perform()
+	
+
 
 def getNumbers(driver, row):
 	"""
@@ -62,18 +74,23 @@ def getNumbers(driver, row):
 	row and returns it. 
 	"""
 	row = []
-	sleep(1)
-	ols = driver.find_elements_by_tag_name('ol')
+	ols = []
+	while len(ols)<=0:
+		ols = driver.find_elements(By.TAG_NAME, 'ol')
 	primary = ols[0]
 	secondary = ols[1]
-	numbers = primary.find_elements_by_tag_name('li')
+	numbers = primary.find_elements(By.TAG_NAME, 'li')
 	for num in numbers:
 		row.append(num.text)
-	numbers2 = secondary.find_elements_by_tag_name('li')
+	numbers2 = secondary.find_elements(By.TAG_NAME, 'li')
 	for num in numbers2:
 		row.append(num.text)
 	print(row)
 	return row
+
+def closeCookies(driver): 
+	button = driver.find_element(By.CLASS_NAME, "Button-module_textContent__HZkLI")
+	button.click()
 
 
 def main():
@@ -93,7 +110,10 @@ def main():
 	print('Starting scraping from week', week)
 	
 	driver = startDrivers(url)
+	print("Driver opened")
 	with open('results.csv', 'w', newline='') as file:
+		print("Closing cookies window")
+		closeCookies(driver)
 		writer = csv.writer(file)
 		writer.writerow(['Week', 'Year', 'no1', 'no2', 'no3', 'no4', 'no5', 'extra1', 'extra2'])
 		while (year, week) != (int(endyear), int(endweek)):
